@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Panel</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{display:flex;min-height:100vh;font-family:Arial,sans-serif;background:#f0f0f0;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:130px;min-height:100vh;background:#c0392b;
+    display:flex;flex-direction:column;padding:0;flex-shrink:0;
+  }
+  .sidebar .brand{
+    color:#fff;font-size:1.3rem;font-weight:800;
+    padding:18px 0 18px 18px;letter-spacing:0.01em;
+  }
+  .sidebar nav a{
+    display:block;color:#fff;text-decoration:none;
+    padding:13px 0 13px 18px;font-size:0.97rem;
+  }
+  .sidebar nav a:hover,.sidebar nav a.active{background:rgba(0,0,0,0.18);}
+
+  /* MAIN */
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+  /* TOP BAR */
+  .topbar{
+    display:flex;align-items:center;gap:10px;
+    background:#fff;padding:10px 18px;border-bottom:1px solid #ddd;
+  }
+  .topbar input{
+    flex:1;padding:8px 14px;border:1px solid #ddd;border-radius:4px;font-size:0.93rem;outline:none;
+  }
+  .topbar .enter-btn{
+    padding:8px 22px;background:#fff;border:1px solid #ddd;border-radius:4px;
+    font-size:0.93rem;cursor:pointer;color:#333;
+  }
+  .topbar .add-btn{
+    padding:8px 20px;background:#c0392b;color:#fff;border:none;border-radius:4px;
+    font-size:0.93rem;cursor:pointer;font-weight:600;
+  }
+  .topbar .add-btn:hover{background:#a93226;}
+  .topbar .avatar{
+    width:38px;height:38px;border-radius:50%;background:#c0392b;
+    overflow:hidden;flex-shrink:0;
+  }
+  .topbar .avatar img{width:100%;height:100%;object-fit:cover;}
+  .topbar .avatar-placeholder{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:1rem;
+  }
+
+  /* CONTENT */
+  .content{padding:20px 18px;flex:1;overflow-y:auto;}
+
+  /* STAT CARDS */
+  .stats{display:flex;gap:14px;margin-bottom:22px;}
+  .stat-card{
+    flex:1;background:#fff;border-radius:8px;padding:18px 16px;
+    display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 1px 4px rgba(0,0,0,0.07);
+  }
+  .stat-card .info .num{font-size:1.7rem;font-weight:800;color:#222;}
+  .stat-card .info .label{font-size:0.83rem;color:#888;margin-top:2px;}
+  .stat-card .av{
+    width:44px;height:44px;border-radius:50%;background:#c0392b;overflow:hidden;flex-shrink:0;
+  }
+  .stat-card .av img{width:100%;height:100%;object-fit:cover;}
+  .stat-card .av-ph{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:1.1rem;
+  }
+
+  /* BOTTOM ROW */
+  .bottom-row{display:flex;gap:16px;}
+
+  /* RECENT PAYMENT */
+  .recent-payment{
+    flex:1.4;background:#fff;border-radius:8px;padding:16px 18px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.07);
+  }
+  .section-header{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
+  }
+  .section-header h3{font-size:1rem;font-weight:700;color:#222;}
+  .view-all-btn{
+    background:#c0392b;color:#fff;border:none;border-radius:4px;
+    padding:5px 14px;font-size:0.8rem;cursor:pointer;font-weight:600;
+  }
+  .view-all-btn:hover{background:#a93226;}
+
+  table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+  thead th{text-align:left;color:#555;font-weight:600;padding:6px 8px 8px 0;border-bottom:1px solid #eee;}
+  tbody td{padding:8px 8px 8px 0;color:#333;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  .view-btn{
+    background:#c0392b;color:#fff;border:none;border-radius:4px;
+    padding:4px 12px;font-size:0.78rem;cursor:pointer;
+  }
+  .view-btn:hover{background:#a93226;}
+
+  /* NEW STUDENTS */
+  .new-students{
+    flex:1;background:#fff;border-radius:8px;padding:16px 18px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.07);
+  }
+  .ns-row{
+    display:flex;align-items:center;gap:10px;
+    padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:0.85rem;
+  }
+  .ns-row:last-child{border-bottom:none;}
+  .ns-av{
+    width:34px;height:34px;border-radius:50%;background:#c0392b;
+    overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:0.85rem;
+  }
+  .ns-av img{width:100%;height:100%;object-fit:cover;}
+  .ns-name{flex:1;color:#222;font-weight:500;}
+  .ns-done{color:#888;font-size:0.82rem;}
+
+  /* ADD MODAL */
+  .modal-bg{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+    z-index:200;align-items:center;justify-content:center;
+  }
+  .modal-bg.open{display:flex;}
+  .modal{
+    background:#fff;border-radius:10px;padding:32px 30px 24px;
+    width:370px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.18);
+  }
+  .modal h3{font-size:1.15rem;font-weight:700;margin-bottom:18px;color:#222;}
+  .modal label{font-size:0.83rem;color:#555;display:block;margin-bottom:4px;}
+  .modal input,.modal select{
+    width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:5px;
+    font-size:0.9rem;margin-bottom:14px;outline:none;
+  }
+  .modal input:focus,.modal select:focus{border-color:#c0392b;}
+  .modal-btns{display:flex;gap:10px;margin-top:4px;}
+  .modal-btns button{
+    flex:1;padding:10px;border:none;border-radius:5px;font-size:0.93rem;
+    font-weight:600;cursor:pointer;
+  }
+  .btn-save{background:#c0392b;color:#fff;}
+  .btn-save:hover{background:#a93226;}
+  .btn-cancel{background:#f0f0f0;color:#333;}
+  .btn-cancel:hover{background:#e0e0e0;}
+  .close-x{
+    position:absolute;top:12px;right:14px;background:none;border:none;
+    font-size:1.2rem;cursor:pointer;color:#888;
+  }
+
+  /* TOAST */
+  .toast{
+    display:none;position:fixed;top:24px;left:50%;transform:translateX(-50%);
+    background:#27ae60;color:#fff;padding:11px 28px;border-radius:7px;
+    font-size:0.93rem;font-weight:600;z-index:999;
+    box-shadow:0 4px 16px rgba(0,0,0,0.18);
+  }
+  .toast.err{background:#c0392b;}
+  .toast.show{display:block;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="brand">Brand</div>
+  <nav>
+    <a href="#" class="active">Dashboard</a>
+    <a href="#">Students</a>
+    <a href="#">Teachers</a>
+    <a href="#">School</a>
+    <a href="#">Income</a>
+    <a href="#">Help</a>
+    <a href="#">Settings</a>
+  </nav>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <input type="text" id="searchInput" placeholder="Search"/>
+    <button class="enter-btn">Enter</button>
+    <button class="add-btn" onclick="openModal()">Add New</button>
+    <div class="avatar"><div class="avatar-placeholder">A</div></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- STAT CARDS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="info">
+          <div class="num" id="statStudents">2194</div>
+          <div class="label">Students</div>
+        </div>
+        <div class="av"><div class="av-ph">S</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="info">
+          <div class="num" id="statTeachers">53</div>
+          <div class="label">Teachers</div>
+        </div>
+        <div class="av"><div class="av-ph">T</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="info">
+          <div class="num" id="statSchools">5</div>
+          <div class="label">Schools</div>
+        </div>
+        <div class="av"><div class="av-ph">Sc</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="info">
+          <div class="num" id="statIncome">350000</div>
+          <div class="label">Income</div>
+        </div>
+        <div class="av"><div class="av-ph">$</div></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="bottom-row">
+
+      <!-- RECENT PAYMENT -->
+      <div class="recent-payment">
+        <div class="section-header">
+          <h3>Recent Payment</h3>
+          <button class="view-all-btn">View All</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>School</th>
+              <th>Amount</th>
+              <th>Option</th>
+            </tr>
+          </thead>
+          <tbody id="paymentBody">
+            <tr><td>Uwen Festus</td><td>Christo College</td><td>$120</td><td><button class="view-btn">View</button></td></tr>
+            <tr><td>Uwen Festus</td><td>Christo College</td><td>$120</td><td><button class="view-btn">View</button></td></tr>
+            <tr><td>Uwen Festus</td><td>Christo College</td><td>$120</td><td><button class="view-btn">View</button></td></tr>
+            <tr><td>Uwen Festus</td><td>Christo College</td><td>$120</td><td><button class="view-btn">View</button></td></tr>
+            <tr><td>Uwen Festus</td><td>Christo College</td><td>$120</td><td><button class="view-btn">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- NEW STUDENTS -->
+      <div class="new-students">
+        <div class="section-header">
+          <h3>New Students</h3>
+          <button class="view-all-btn">View All</button>
+        </div>
+        <div style="display:flex;gap:0;padding:6px 0 10px;font-size:0.83rem;color:#555;font-weight:600;">
+          <span style="width:44px;"></span>
+          <span style="flex:1;">Name</span>
+          <span>Option</span>
+        </div>
+        <div id="newStudentsList">
+          <div class="ns-row"><div class="ns-av">KF</div><div class="ns-name">Kelvin Festus</div><div class="ns-done">Done</div></div>
+          <div class="ns-row"><div class="ns-av">KF</div><div class="ns-name">Kelvin Festus</div><div class="ns-done">Done</div></div>
+          <div class="ns-row"><div class="ns-av">KF</div><div class="ns-name">Kelvin Festus</div><div class="ns-done">Done</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD NEW MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal()">&#10005;</button>
+    <h3>Add New</h3>
+    <label>Type</label>
+    <select id="regType">
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+    </select>
+    <label>Full Name</label>
+    <input type="text" id="regName" placeholder="e.g. John Doe"/>
+    <label>School</label>
+    <input type="text" id="regSchool" placeholder="e.g. Christo College"/>
+    <label>Amount ($)</label>
+    <input type="number" id="regAmount" placeholder="e.g. 120"/>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="handleAdd()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // State
+  const state = {
+    students: 2194,
+    teachers: 53,
+    schools: 5,
+    income: 350000
+  };
+
+  function openModal(){ document.getElementById('modalBg').classList.add('open'); }
+  function closeModal(){
+    document.getElementById('modalBg').classList.remove('open');
+    document.getElementById('regName').value='';
+    document.getElementById('regSchool').value='';
+    document.getElementById('regAmount').value='';
+    document.getElementById('regType').value='student';
+  }
+
+  function showToast(msg, isErr=false){
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.className='toast show'+(isErr?' err':'');
+    setTimeout(()=>t.className='toast',3000);
+  }
+
+  function initials(name){
+    return name.trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+  }
+
+  function handleAdd(){
+    const type   = document.getElementById('regType').value;
+    const name   = document.getElementById('regName').value.trim();
+    const school = document.getElementById('regSchool').value.trim();
+    const amount = document.getElementById('regAmount').value.trim();
+
+    if(!name){ showToast('Name — input required', true); return; }
+    if(!school){ showToast('School — input required', true); return; }
+    if(!amount){ showToast('Amount — input required', true); return; }
+
+    const amt = parseInt(amount);
+
+    if(type==='student'){
+      state.students++;
+      document.getElementById('statStudents').textContent = state.students.toLocaleString();
+
+      // Add to New Students panel
+      const list = document.getElementById('newStudentsList');
+      const row = document.createElement('div');
+      row.className='ns-row';
+      row.innerHTML=`<div class="ns-av">${initials(name)}</div><div class="ns-name">${name}</div><div class="ns-done">Done</div>`;
+      list.insertBefore(row, list.firstChild);
+
+    } else {
+      state.teachers++;
+      document.getElementById('statTeachers').textContent = state.teachers.toLocaleString();
+    }
+
+    // Add to Recent Payment table
+    state.income += amt;
+    document.getElementById('statIncome').textContent = state.income.toLocaleString();
+    const tbody = document.getElementById('paymentBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML=`<td>${name}</td><td>${school}</td><td>$${amt}</td><td><button class="view-btn">View</button></td>`;
+    tbody.insertBefore(tr, tbody.firstChild);
+
+    closeModal();
+    showToast(`${type==='student'?'Student':'Teacher'} "${name}" added successfully!`);
+  }
+</script>
+</body>
+</html>

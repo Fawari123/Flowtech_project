@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Full Stack Website With Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #0a0a1a;
+      overflow-x: hidden;
+    }
+
+    /* BACKGROUND */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,180,255,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 30%, rgba(180,0,255,0.22) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 90%, rgba(120,0,200,0.18) 0%, transparent 50%),
+        linear-gradient(160deg, #0d0d2b 0%, #0a0a1a 40%, #1a0a2e 100%);
+      z-index: 0;
+    }
+
+    /* Street glow floor */
+    .bg::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 40%;
+      background: linear-gradient(to top, rgba(0,120,255,0.10), transparent);
+    }
+
+    /* NAVBAR */
+    nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 60px;
+    }
+
+    .logo {
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #ddd;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover { color: #fff; }
+
+    .nav-login-btn {
+      border: 1.5px solid #fff;
+      background: transparent;
+      color: #fff;
+      border-radius: 20px;
+      padding: 7px 24px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .nav-login-btn:hover { background: rgba(255,255,255,0.1); }
+
+    /* PAGE CONTENT */
+    .page {
+      position: relative;
+      z-index: 10;
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hey {
+      position: absolute;
+      bottom: 36px;
+      left: 60px;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* MODAL OVERLAY */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* REGISTER CARD */
+    .register-card {
+      position: relative;
+      background: rgba(30, 20, 70, 0.62);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(130, 100, 255, 0.25);
+      border-radius: 16px;
+      padding: 38px 42px 32px 42px;
+      width: 360px;
+      box-shadow: 0 8px 48px rgba(80,0,200,0.25), 0 2px 16px rgba(0,0,0,0.4);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover { background: #eee; }
+
+    .register-card h2 {
+      text-align: center;
+      color: #fff;
+      font-size: 1.7rem;
+      font-weight: 800;
+      margin-bottom: 26px;
+      letter-spacing: 0.01em;
+    }
+
+    /* INPUT GROUP */
+    .input-wrap {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(180,160,255,0.25);
+      border-radius: 8px;
+      padding: 13px 42px 13px 16px;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .input-wrap input::placeholder { color: rgba(220,210,255,0.55); }
+
+    .input-wrap input:focus {
+      border-color: rgba(160,130,255,0.7);
+      background: rgba(255,255,255,0.13);
+    }
+
+    .input-wrap input.error-field {
+      border-color: #ff4d6d !important;
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(200,185,255,0.7);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    /* REGISTER BUTTON */
+    .register-btn {
+      width: 100%;
+      background: #fff;
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      padding: 13px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      margin-bottom: 18px;
+      letter-spacing: 0.03em;
+      transition: background 0.2s;
+    }
+
+    .register-btn:hover { background: #e8e8ff; }
+
+    .login-link {
+      text-align: center;
+      color: rgba(220,210,255,0.75);
+      font-size: 0.84rem;
+    }
+
+    .login-link a {
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .login-link a:hover { text-decoration: underline; }
+
+    /* TOAST / POPUP */
+    .toast {
+      display: none;
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff4d6d;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      z-index: 999;
+      box-shadow: 0 4px 20px rgba(255,60,80,0.4);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .toast.show { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; top: 10px; }
+      to   { opacity: 1; top: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg"></div>
+
+  <!-- NAVBAR -->
+  <nav>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Contact</a></li>
+      <li><button class="nav-login-btn" onclick="openModal()">Login</button></li>
+    </ul>
+  </nav>
+
+  
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="register-card">
+      <button class="close-btn" onclick="closeModal()">&#10005;</button>
+      <h2>Register</h2>
+
+      <div class="input-wrap">
+        <input type="text" id="username" placeholder="Codehal" />
+        <span class="input-icon">&#128100;</span>
+      </div>
+
+      <div class="input-wrap">
+        <input type="email" id="email" placeholder="codehal@gmail.com" />
+        <span class="input-icon">&#9993;</span>
+      </div>
+
+      <div class="input-wrap">
+        <input type="password" id="password" placeholder="••••••" />
+        <span class="input-icon">&#128274;</span>
+      </div>
+
+      <a href="userlogin2.html"><button class="register-btn" onclick="handleRegister()">Register</button></a>
+
+      <p class="login-link">Already have an account? <a href="userlogin2.html">Login</a></p>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function handleRegister() {
+      const username = document.getElementById('username');
+      const email    = document.getElementById('email');
+      const password = document.getElementById('password');
+
+      // Reset error styles
+      [username, email, password].forEach(el => el.classList.remove('error-field'));
+
+      const missing = [];
+      if (!username.value.trim()) { missing.push('Username'); username.classList.add('error-field'); }
+      if (!email.value.trim())    { missing.push('Email');    email.classList.add('error-field'); }
+      if (!password.value.trim()) { missing.push('Password'); password.classList.add('error-field'); }
+
+      if (missing.length > 0) {
+        showToast(missing.join(', ') + ' — input required');
+        return;
+      }
+
+      showToast('Registered successfully!');
+    }
+  </script>
+</body>
+</html>
